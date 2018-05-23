@@ -175,13 +175,14 @@ function init_eazzycheckout_payment_gateway_class() {
 			 * Render EazzyCheckout payment form
 			 */
 			public function render_payment_form() {
-				if ( ! isset( $_GET['order-received'] ) || empty( $_GET['order-received'] ) ) {
-					return;
-				}
+				if ( ! isset( $_GET['key'] ) || empty( $_GET['key'] ) ) return;
 
-				$order_id = $_GET['order-received'];
+				$order_id = wc_get_order_id_by_order_key( $_GET['key'] );
 				$order    = wc_get_order( $order_id );
 
+				if ( ! $order || ! $order->has_status( 'on-hold' ) ) return;
+
+				// Enqueue our scripts
 				wp_register_script( 'eazzycheckout-js', $this->script_url );
 				wp_enqueue_script( 'kanzu-eazzycheckout-js', trailingslashit( plugin_dir_url( __FILE__ ) ) . 'assets/js/woocommerce-gateway-eazzycheckout.js', array( 'jquery', 'eazzycheckout-js' ) );
 				wp_localize_script(
