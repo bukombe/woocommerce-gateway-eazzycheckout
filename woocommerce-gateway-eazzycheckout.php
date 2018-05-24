@@ -81,8 +81,6 @@ function init_eazzycheckout_payment_gateway_class() {
 			 * Handle EazzyCheckout callback
 			 */
 			public function handle_callback() {
-                error_log( print_r( $_REQUEST, true ) );
-
                 if ( !isset( $_REQUEST['orderRef'] ) || ! isset( $_REQUEST['status'] ) ) return;
 
                 if ( ( $order_id = $_REQUEST['orderRef'] ) && 'paid' == $_REQUEST['status'] ) {
@@ -91,7 +89,10 @@ function init_eazzycheckout_payment_gateway_class() {
 						$order->add_order_note( __( 'EazzyCheckout payment completed.', 'kanzu-eazzycheckout' ) );
 						$order->payment_complete();
                     }
-                }
+				}
+
+				wp_redirect( home_url( '/shop' ) );
+				exit;
 			}
 
 			/**
