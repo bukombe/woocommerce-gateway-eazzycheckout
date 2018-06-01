@@ -191,7 +191,9 @@ function init_eazzycheckout_payment_gateway_class() {
 
 				if ( ! $order || ! $order->has_status( 'on-hold' ) ) return;
 
-				// Enqueue our scripts
+				// Enqueue our scripts and styles
+				wp_enqueue_style( 'kanzu-eazzycheckout-css', trailingslashit( plugin_dir_url( __FILE__ ) ) . 'assets/css/woocommerce-gateway-eazzycheckout.css' );
+
 				wp_register_script( 'eazzycheckout-js', $this->script_url );
 				wp_enqueue_script( 'kanzu-eazzycheckout-js', trailingslashit( plugin_dir_url( __FILE__ ) ) . 'assets/js/woocommerce-gateway-eazzycheckout.js', array( 'jquery', 'eazzycheckout-js' ) );
 				wp_localize_script(
