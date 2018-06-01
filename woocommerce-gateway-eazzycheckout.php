@@ -275,7 +275,7 @@ function init_eazzycheckout_payment_gateway_class() {
 							'post_status'  => 'publish',
 							'post_content' => __( 'Loading Eazzy Checkout...' ),
 							'post_slug'    => 'eazzy-checkout',
-							'page_title'   => 'Eazzy Checkout',
+							'post_title'   => 'Eazzy Checkout',
 						)
 					);
 
