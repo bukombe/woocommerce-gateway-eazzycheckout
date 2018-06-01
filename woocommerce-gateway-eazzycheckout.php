@@ -16,13 +16,6 @@ add_action( 'plugins_loaded', 'init_eazzycheckout_payment_gateway_class' );
 
 function init_eazzycheckout_payment_gateway_class() {
 
-	add_filter( 'woocommerce_payment_gateways', 'add_eazzycheckout_gateway_class' );
-
-	function add_eazzycheckout_gateway_class( $methods ) {
-		$methods[] = 'WooCommerce_Gateway_EazzyCheckout';
-		return $methods;
-	}
-
 	if ( ! class_exists( 'WooCommerce_Gateway_EazzyCheckout' ) ) {
 
 		/**
@@ -75,20 +68,36 @@ function init_eazzycheckout_payment_gateway_class() {
 
 				// Callback endpoint
 				add_action( 'woocommerce_api_wc_' . $this->id . '_gateway', array( $this, 'handle_callback' ) );
+
+				// Add to this gateway to WooCommerce
+				add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateway' ) );
+
+				// Render Eazzy Checkout payment form
+				add_action( 'wp', array( $this, 'render_payment_form' ) );
+			}
+
+			public function add_gateway( $methods ) {
+				$methods[] = $this;
+				return $methods;		
 			}
 
 			/**
 			 * Handle EazzyCheckout callback
 			 */
 			public function handle_callback() {
-                if ( !isset( $_REQUEST['orderRef'] ) || ! isset( $_REQUEST['status'] ) ) return;
+				if ( ! isset( $_REQUEST['orderRef'] ) || ! isset( $_REQUEST['status'] ) ) {
+					return;
+				}
 
-                if ( ( $order_id = $_REQUEST['orderRef'] ) && 'paid' == $_REQUEST['status'] ) {
-                    $order = wc_get_order( $order_id );
-                    if ( $order ) {
+				if ( ( $order_id = $_REQUEST['orderRef'] ) && 'paid' == $_REQUEST['status'] ) {
+					$order = wc_get_order( $order_id );
+					if ( $order ) {
 						$order->add_order_note( __( 'EazzyCheckout payment completed.', 'kanzu-eazzycheckout' ) );
 						$order->payment_complete();
-                    }
+
+						wp_redirect( $this->get_return_url( $order ) );
+						exit;
+					}
 				}
 
 				wp_redirect( home_url( '/shop' ) );
@@ -169,16 +178,15 @@ function init_eazzycheckout_payment_gateway_class() {
 			 * Output for the order received page.
 			 */
 			public function thankyou_page() {
-				$this->render_payment_form();
 			}
 
 			/**
 			 * Render EazzyCheckout payment form
 			 */
 			public function render_payment_form() {
-				if ( ! isset( $_GET['key'] ) || empty( $_GET['key'] ) ) return;
+				if ( ! is_page( 'eazzy-checkout' ) || ! isset( $_GET['order-id'] ) || empty( $_GET['order-id'] ) ) return;
 
-				$order_id = wc_get_order_id_by_order_key( $_GET['key'] );
+				$order_id = $_GET['order-id'];
 				$order    = wc_get_order( $order_id );
 
 				if ( ! $order || ! $order->has_status( 'on-hold' ) ) return;
@@ -189,7 +197,7 @@ function init_eazzycheckout_payment_gateway_class() {
 				wp_localize_script(
 					'kanzu-eazzycheckout-js', 'KanzuEazzyCheckout', array(
 						'token'        => $this->get_access_token(),
-						'amount'       => $order->get_total(),
+						'amount'       => (int) $order->get_total(),
 						'merchantCode' => $this->merchant_code,
 						'outletCode'   => $this->outlet_code,
 						'callbackUrl'  => str_replace( 'https:', 'http:', add_query_arg( 'wc-api', 'WC_EazzyCheckout_Gateway', home_url( '/' ) ) ),
@@ -222,10 +230,11 @@ function init_eazzycheckout_payment_gateway_class() {
 				// Remove cart
 				WC()->cart->empty_cart();
 
-				// Return thankyou redirect
+				//Redirect to Eazzy Checkout page
+				$redirect = get_permalink( $this->get_checkout_page_id() );
 				return array(
 					'result'   => 'success',
-					'redirect' => $this->get_return_url( $order ),
+					'redirect' => add_query_arg( 'order-id', $order_id, $redirect ),
 				);
 			}
 
@@ -256,6 +265,25 @@ function init_eazzycheckout_payment_gateway_class() {
 				return false;
 			}
 
+			public function get_checkout_page_id() {
+				if ( $page = get_page_by_path( 'eazzy-checkout' ) ) {
+					return $page->ID;
+				} else {
+					$page_id = wp_insert_post(
+						array(
+							'post_type'    => 'page',
+							'post_status'  => 'publish',
+							'post_content' => __( 'Loading Eazzy Checkout...' ),
+							'post_slug'    => 'eazzy-checkout',
+							'page_title'   => 'Eazzy Checkout',
+						)
+					);
+
+					return $page_id;
+				}
+			}
+
 		}
 	}
+	new WooCommerce_Gateway_EazzyCheckout();
 }
