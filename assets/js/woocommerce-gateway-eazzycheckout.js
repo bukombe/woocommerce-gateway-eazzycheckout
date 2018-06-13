@@ -1,7 +1,8 @@
-(function($) {
-	$( document ).ready(
-		function() {
+(function ($) {
+	$(document).ready(
+		function () {
 			var options = {
+				currency: "KES",
 				token: KanzuEazzyCheckout.token,
 				amount: KanzuEazzyCheckout.amount + '00',
 				orderRef: KanzuEazzyCheckout.orderRef,
@@ -15,8 +16,8 @@
 				expiry: "2030-02-17T19:00:00",
 			};
 
-			EazzyCheckout.configure( options );
+			EazzyCheckout.configure(options);
 			EazzyCheckout.open();
 		}
 	);
-})( jQuery );
+})(jQuery);

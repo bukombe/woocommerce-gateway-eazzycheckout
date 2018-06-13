@@ -260,7 +260,7 @@ function init_eazzycheckout_payment_gateway_class() {
 
 				if ( ! is_wp_error( $response ) ) {
 					$response = json_decode( $response['body'], true );
-					if ( 'success' == $response['status'] ) {
+					if ( isset( $response['status'] ) && 'success' == $response['status'] ) {
 						return $response['payment-token'];
 					}
 				}
