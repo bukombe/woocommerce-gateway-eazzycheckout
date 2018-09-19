@@ -264,11 +264,12 @@ function init_eazzycheckout_payment_gateway_class() {
 				if ( $page = get_page_by_path( 'eazzy-checkout' ) ) {
 					return $page->ID;
 				} else {
+					$gateway_form = '<form id="eazzycheckout-payment-form" action=" https://api-test.equitybankgroup.com/v2/checkout/launch" method="POST"></form>';
 					$page_id = wp_insert_post(
 						array(
 							'post_type'    => 'page',
 							'post_status'  => 'publish',
-							'post_content' => __( 'Loading Eazzy Checkout...' ),
+							'post_content' => __( 'Loading Eazzy Checkout...' . $gateway_form ),
 							'post_slug'    => 'eazzy-checkout',
 							'post_title'   => 'Eazzy Checkout',
 						)
