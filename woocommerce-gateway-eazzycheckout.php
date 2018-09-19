@@ -48,18 +48,15 @@ function init_eazzycheckout_payment_gateway_class() {
 				// Define user set variables
 				$this->title           = $this->get_option( 'title' );
 				$this->description     = $this->get_option( 'description' );
-				$this->consumer_key    = $this->get_option( 'consumer_key' );
-				$this->consumer_secret = $this->get_option( 'consumer_secret' );
 				$this->merchant_code   = $this->get_option( 'merchant_code' );
-				$this->merchant_key    = $this->get_option( 'merchant_key' );
+				$this->password    = $this->get_option( 'password' );
 				$this->outlet_code     = $this->get_option( 'outlet_code' );
+				$this->api_key = $this->get_option( 'api_key' );
 
 				if ( 'yes' == $this->get_option( 'test_enabled' ) ) {
-					$this->token_api  = 'https://api-test.equitybankgroup.com/v1/token';
-					$this->script_url = 'https://api-test.equitybankgroup.com/js/eazzycheckout.js';
+					$this->token_api  = 'https://sandbox.jengahq.io/identity-test/v2/token';
 				} else {
 					$this->token_api  = '';
-					$this->script_url = '';
 				}
 
 				// Actions
@@ -78,7 +75,7 @@ function init_eazzycheckout_payment_gateway_class() {
 
 			public function add_gateway( $methods ) {
 				$methods[] = $this;
-				return $methods;		
+				return $methods;
 			}
 
 			/**
@@ -143,10 +140,10 @@ function init_eazzycheckout_payment_gateway_class() {
 						'default'     => '',
 						'desc_tip'    => true,
 					),
-					'merchant_key'    => array(
-						'title'       => __( 'Merchant Key', 'kanzu-eazzycheckout' ),
-						'type'        => 'text',
-						'description' => __( 'Merchant Key required for authentication.' ),
+					'password'    => array(
+						'title'       => __( 'Password', 'kanzu-eazzycheckout' ),
+						'type'        => 'password',
+						'description' => __( 'Password required for authentication.' ),
 						'default'     => '',
 						'desc_tip'    => true,
 					),
@@ -157,17 +154,10 @@ function init_eazzycheckout_payment_gateway_class() {
 						'default'     => '',
 						'desc_tip'    => true,
 					),
-					'consumer_key'    => array(
-						'title'       => __( 'Consumer Key', 'kanzu-eazzycheckout' ),
+					'api_key'     => array(
+						'title'       => __( 'API key', 'kanzu-eazzycheckout' ),
 						'type'        => 'text',
-						'description' => __( 'Consumer Key required for authentication.' ),
-						'default'     => '',
-						'desc_tip'    => true,
-					),
-					'consumer_secret' => array(
-						'title'       => __( 'Consumer Secret', 'kanzu-mpesa' ),
-						'type'        => 'text',
-						'description' => __( 'Consumer Secret required for authentication.' ),
+						'description' => __( 'API key for authentication.' ),
 						'default'     => '',
 						'desc_tip'    => true,
 					),
@@ -185,17 +175,17 @@ function init_eazzycheckout_payment_gateway_class() {
 			 */
 			public function render_payment_form() {
 				if ( ! is_page( 'eazzy-checkout' ) || ! isset( $_GET['order-id'] ) || empty( $_GET['order-id'] ) ) return;
-
+				error_log("here");
 				$order_id = $_GET['order-id'];
 				$order    = wc_get_order( $order_id );
 
-				if ( ! $order || ! $order->has_status( 'on-hold' ) ) return;
+				// if ( ! $order /*|| ! $order->has_status( 'on-hold' ) */) return;
+				// error_log("here2");
 
 				// Enqueue our scripts and styles
 				wp_enqueue_style( 'kanzu-eazzycheckout-css', trailingslashit( plugin_dir_url( __FILE__ ) ) . 'assets/css/woocommerce-gateway-eazzycheckout.css' );
 
-				wp_register_script( 'eazzycheckout-js', $this->script_url );
-				wp_enqueue_script( 'kanzu-eazzycheckout-js', trailingslashit( plugin_dir_url( __FILE__ ) ) . 'assets/js/woocommerce-gateway-eazzycheckout.js', array( 'jquery', 'eazzycheckout-js' ) );
+				wp_enqueue_script( 'kanzu-eazzycheckout-js', trailingslashit( plugin_dir_url( __FILE__ ) ) . 'assets/js/woocommerce-gateway-eazzycheckout.js', array( 'jquery' ) );
 				wp_localize_script(
 					'kanzu-eazzycheckout-js', 'KanzuEazzyCheckout', array(
 						'token'        => $this->get_access_token(),
@@ -211,6 +201,9 @@ function init_eazzycheckout_payment_gateway_class() {
 
 					)
 				);
+
+				error_log("here3");
+
 			}
 
 			/**
@@ -225,7 +218,7 @@ function init_eazzycheckout_payment_gateway_class() {
 
 				// Mark as on-hold
 				$order->update_status( 'on-hold', _x( 'Awaiting payment', 'EazzyCheckout payment method', 'kanzu-eazzycheckout' ) );
-
+				$order->save();
 				// Reduce stock levels
 				wc_reduce_stock_levels( $order_id );
 
@@ -246,12 +239,12 @@ function init_eazzycheckout_payment_gateway_class() {
 			public function get_access_token() {
 				$data = array(
 					'headers' => array(
-						'Authorization' => 'Basic ' . base64_encode( $this->consumer_key . ':' . $this->consumer_secret ),
+							'Authorization' => $this->get_option( 'api_key' ),
 						'Content-Type'  => 'application/x-www-form-urlencoded',
 					),
 					'body'    => array(
-						'merchantCode' => $this->merchant_code,
-						'password'     => $this->merchant_key,
+						'username' => $this->merchant_code,
+						'password'     => $this->password,
 					),
 					'timeout' => 60,
 				);
@@ -260,8 +253,8 @@ function init_eazzycheckout_payment_gateway_class() {
 
 				if ( ! is_wp_error( $response ) ) {
 					$response = json_decode( $response['body'], true );
-					if ( isset( $response['status'] ) && 'success' == $response['status'] ) {
-						return $response['payment-token'];
+					if ( isset( $response['access_token'] ) ) {
+						return $response['access_token'];
 					}
 				}
 				return false;
