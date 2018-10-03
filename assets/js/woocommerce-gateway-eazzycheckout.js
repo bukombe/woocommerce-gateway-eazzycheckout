@@ -20,10 +20,11 @@
 			gateway_form.append('ordedRef<input type="text" id="orderReference" name="orderReference" value="' + orderRef + '">');
 			gateway_form.append('Merchant code<input type="text" id="merchantCode" name="merchantCode" value="' + merchantCode + '">');
 			gateway_form.append('outlet code<input type="text" id="outletCode" name="outletCode" value="' + outletCode + '">');
+			gateway_form.append('currency<input type="text" id="currency" name="currency" value="' + currency + '">');
 			gateway_form.append('popupLogo<input type="text" id="popupLogo" name="popupLogo" value="' + popupLogo + '">');
+			gateway_form.append('custName<input type="text" id="custName" name="custName" value="' + custName + '">');
 			gateway_form.append('callback<input type="text" id="ez1_callbackurl" name="ez1_callbackurl" value="' + ez1_callbackurl + '">');
 			gateway_form.append('expiry<input type="text" id="expiry" name="expiry" value="' + expiry + '">');
-			gateway_form.append('orderref<input type="text" id="orderID" name="orderID" value="' + orderRef + '">');
 			gateway_form.append('website<input type="text" id="website" name="website" value="' + website + '">');
 			gateway_form.append('description<input type="text" id="description" name="description" value="' + description + '">');
 			gateway_form.append('<input type="submit" id="submit-cg" role="button" class="btn btn-primary col-md-4" value="Checkout">');
