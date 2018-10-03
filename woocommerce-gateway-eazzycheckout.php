@@ -54,9 +54,9 @@ function init_eazzycheckout_payment_gateway_class() {
 				$this->api_key = $this->get_option( 'api_key' );
 
 				if ( 'yes' == $this->get_option( 'test_enabled' ) ) {
-					$this->token_api  = 'https://sandbox.jengahq.io/identity-test/v2/token';
+					$this->api_url  = 'https://api-test.equitybankgroup.com/v1/token';
 				} else {
-					$this->token_api  = '';
+					$this->api_url  = '';
 				}
 
 				// Actions
@@ -174,7 +174,7 @@ function init_eazzycheckout_payment_gateway_class() {
 			 * Render EazzyCheckout payment form
 			 */
 			public function render_payment_form() {
-				if ( ! is_page( 'eazzy-checkout' ) || ! isset( $_GET['order-id'] ) || empty( $_GET['order-id'] ) ) return;
+				if ( ! is_page( 'eazzy-checkout-page' ) || ! isset( $_GET['order-id'] ) || empty( $_GET['order-id'] ) ) return;
 				error_log("here");
 				$order_id = $_GET['order-id'];
 				$order    = wc_get_order( $order_id );
@@ -239,39 +239,41 @@ function init_eazzycheckout_payment_gateway_class() {
 			public function get_access_token() {
 				$data = array(
 					'headers' => array(
-							'Authorization' => $this->get_option( 'api_key' ),
+						'Authorization' => $this->get_option( 'api_key' ),
 						'Content-Type'  => 'application/x-www-form-urlencoded',
 					),
 					'body'    => array(
-						'username' => $this->merchant_code,
+						'merchantCode' => $this->merchant_code,
 						'password'     => $this->password,
 					),
 					'timeout' => 60,
 				);
 
-				$response = wp_remote_post( $this->token_api, $data );
+				$response = wp_remote_post( $this->api_url, $data );
 
 				if ( ! is_wp_error( $response ) ) {
 					$response = json_decode( $response['body'], true );
-					if ( isset( $response['access_token'] ) ) {
-						return $response['access_token'];
+					if ( isset( $response['payment-token'] ) ) {
+						return $response['payment-token'];
 					}
 				}
+
+				error_log(print_r($response, true));
 				return false;
 			}
 
 			public function get_checkout_page_id() {
-				if ( $page = get_page_by_path( 'eazzy-checkout' ) ) {
+				if ( $page = get_page_by_path( 'eazzy-checkout-page' ) ) {
 					return $page->ID;
 				} else {
-					$gateway_form = '<form id="eazzycheckout-payment-form" action=" https://api-test.equitybankgroup.com/v2/checkout/launch" method="POST"></form>';
+					$gateway_form = '<form id="eazzycheckout-payment-form" action="https://api-test.equitybankgroup.com/v2/checkout/launch" method="POST"></form>';
 					$page_id = wp_insert_post(
 						array(
 							'post_type'    => 'page',
 							'post_status'  => 'publish',
 							'post_content' => __( 'Loading Eazzy Checkout...' . $gateway_form ),
-							'post_slug'    => 'eazzy-checkout',
-							'post_title'   => 'Eazzy Checkout',
+							'post_slug'    => 'eazzy-checkout-page',
+							'post_title'   => 'Eazzy Checkout Page',
 						)
 					);
 
