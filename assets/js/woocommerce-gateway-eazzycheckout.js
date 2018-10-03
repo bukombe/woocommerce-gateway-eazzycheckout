@@ -17,7 +17,7 @@
 			var gateway_form = $('#eazzycheckout-payment-form');
 			gateway_form.append('token<input type="text" id="token" name="token" value="' + token + '">');
 			gateway_form.append('amount<input type="text" id="amount" name="amount" value="' + amount + '">');
-			gateway_form.append('ordedRef<input type="text" id="orderReferenc" name="orderReferenc" value="' + orderRef + '">');
+			gateway_form.append('ordedRef<input type="text" id="orderReference" name="orderReference" value="' + orderRef + '">');
 			gateway_form.append('Merchant code<input type="text" id="merchantCode" name="merchantCode" value="' + merchantCode + '">');
 			gateway_form.append('outlet code<input type="text" id="outletCode" name="outletCode" value="' + outletCode + '">');
 			gateway_form.append('popupLogo<input type="text" id="popupLogo" name="popupLogo" value="' + popupLogo + '">');
