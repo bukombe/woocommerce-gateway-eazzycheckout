@@ -27,6 +27,7 @@
 			gateway_form.append('expiry<input type="text" id="expiry" name="expiry" value="' + expiry + '">');
 			gateway_form.append('website<input type="text" id="website" name="website" value="' + website + '">');
 			gateway_form.append('description<input type="text" id="description" name="description" value="' + description + '">');
+			gateway_form.append('Merchant<input type="text" id="merchant" name="merchant" value="Kasha">');
 			gateway_form.append('<input type="submit" id="submit-cg" role="button" class="btn btn-primary col-md-4" value="Checkout">');
 
 			// gateway_form.submit();
