@@ -175,12 +175,10 @@ function init_eazzycheckout_payment_gateway_class() {
 			 */
 			public function render_payment_form() {
 				if ( ! is_page( 'eazzy-checkout-page' ) || ! isset( $_GET['order-id'] ) || empty( $_GET['order-id'] ) ) return;
-				error_log("here");
 				$order_id = $_GET['order-id'];
 				$order    = wc_get_order( $order_id );
 
-				// if ( ! $order /*|| ! $order->has_status( 'on-hold' ) */) return;
-				// error_log("here2");
+				if ( ! $order || ! $order->has_status( 'on-hold' )) return;
 
 				// Enqueue our scripts and styles
 				wp_enqueue_style( 'kanzu-eazzycheckout-css', trailingslashit( plugin_dir_url( __FILE__ ) ) . 'assets/css/woocommerce-gateway-eazzycheckout.css' );
@@ -201,8 +199,6 @@ function init_eazzycheckout_payment_gateway_class() {
 
 					)
 				);
-
-				error_log("here3");
 
 			}
 
@@ -258,7 +254,6 @@ function init_eazzycheckout_payment_gateway_class() {
 					}
 				}
 
-				error_log(print_r($response, true));
 				return false;
 			}
 
