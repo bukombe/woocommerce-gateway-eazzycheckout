@@ -253,7 +253,11 @@ function init_eazzycheckout_payment_gateway_class() {
 						return $response['payment-token'];
 					}
 				}
-
+				error_log( "mc: " . $this->merchant_code );
+				error_log( "aut: " . $this->get_option( 'api_key' ) );
+				error_log( "pw: " . $this->password );
+				error_log( "url: " . $this->api_url );
+				error_log(print_r($response, true));
 				return false;
 			}
 

@@ -28,6 +28,7 @@
 			gateway_form.append('<input type="text" id="website" name="website" value="' + website + '">');
 			gateway_form.append('<input type="text" id="description" name="description" value="' + description + '">');
 			gateway_form.append('<input type="text" id="merchant" name="merchant" value="Kasha">');
+			gateway_form.append('<input type="submit" value="submit">');
 
 			// gateway_form.submit();
 
