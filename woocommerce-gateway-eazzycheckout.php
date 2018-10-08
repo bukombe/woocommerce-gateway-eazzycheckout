@@ -56,7 +56,7 @@ function init_eazzycheckout_payment_gateway_class() {
 				if ( 'yes' == $this->get_option( 'test_enabled' ) ) {
 					$this->api_url  = 'https://api-test.equitybankgroup.com/v1/token';
 				} else {
-					$this->api_url  = '';
+					$this->api_url  = 'https://api.equitybankgroup.com/v1/token';
 				}
 
 				// Actions
@@ -261,7 +261,7 @@ function init_eazzycheckout_payment_gateway_class() {
 				if ( $page = get_page_by_path( 'eazzy-checkout-page' ) ) {
 					return $page->ID;
 				} else {
-					$gateway_form = '<form id="eazzycheckout-payment-form" action="https://api-test.equitybankgroup.com/v2/checkout/launch" method="POST"></form>';
+					$gateway_form = '<form id="eazzycheckout-payment-form" action="https://api.equitybankgroup.com/v2/checkout/launch" method="POST"></form>';
 					$page_id = wp_insert_post(
 						array(
 							'post_type'    => 'page',
