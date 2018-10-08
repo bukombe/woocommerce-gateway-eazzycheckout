@@ -29,7 +29,7 @@
 			gateway_form.append('<input type="text" id="description" name="description" value="' + description + '">');
 			gateway_form.append('<input type="text" id="merchant" name="merchant" value="Kasha">');
 
-			gateway_form.submit();
+			// gateway_form.submit();
 
 		}
 	);
